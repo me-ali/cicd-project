@@ -1,0 +1,64 @@
+name: Setup Server Environment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  install_git:
+    name: Install Git
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Install Git
+        run: sudo apt-get install -y git
+
+  install_nginx:
+    name: Install Nginx
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Install Nginx
+        run: sudo apt-get install -y nginx
+
+  echo_build_success:
+    name: Echo Build Success
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Echo Build Success
+        run: echo "Build successful"
+
+  run_tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Run Tests
+        run: |
+          # Add commands to run tests here
+          echo "Running tests..."
+
+ssh_to_server:
+  name: SSH to Server and Execute Commands
+  runs-on: ubuntu-latest
+    
+  steps:
+    - name: SSH into Server and Execute Commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # Add commands to be executed on the server after SSH connection
+          echo "Connected to server"
+          cd /home/ubuntu/cicd-project
+          git pull origin main
+          cp * /var/www/html/
+          echo "website upgradation done"
+
