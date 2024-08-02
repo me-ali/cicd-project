@@ -7,7 +7,7 @@ on:
 
 jobs:
   Checkout_Repository:
-    name: Install Git
+    name: checkout_repository
     runs-on: ubuntu-latest
     
     steps:
@@ -18,12 +18,12 @@ jobs:
         run: sudo apt-get install -y git
 
   Set_ENV:
-    name: Set_ENVIRONMENT
+    name: Set_Environment
     runs-on: ubuntu-latest
     needs:  Checkout_Repository
     
     steps:
-      - name: Set_ENVIRONMENT
+      - name: Set_Environment
         run: sudo apt-get install -y nginx
 
   Build:
