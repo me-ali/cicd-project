@@ -70,7 +70,7 @@ jobs:
   prod_deploy:
     name: prod_deploy
     runs-on: ubuntu-latest
-    needs: run_tests
+    needs: dev_deploy
     environment:
       name: production
     steps:
