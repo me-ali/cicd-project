@@ -1,4 +1,4 @@
-name: Setup Server Environment
+name: Dynamic_Workflow
 
 on:
   push:
@@ -6,30 +6,30 @@ on:
       - main
 
 jobs:
-  install_git:
+  Checkout_Repository:
     name: Install Git
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - name: Install Git
         run: sudo apt-get install -y git
 
-  install_nginx:
-    name: Install Nginx
+  Set_ENV:
+    name: Set_ENVIRONMENT
     runs-on: ubuntu-latest
-    needs:  install_git
+    needs:  Checkout_Repository
     
     steps:
-      - name: Install Nginx
+      - name: Set_ENVIRONMENT
         run: sudo apt-get install -y nginx
 
   Build:
-    name: Echo Build Success
+    name: Build
     runs-on: ubuntu-latest
-    needs: install_nginx
+    needs: Set_ENV
     
     steps:
       - name: Echo Build Success
@@ -46,16 +46,38 @@ jobs:
           # Add commands to run tests here
           echo "Running tests..."
 
-  ssh_to_server:
-    name: SSH to Server and Execute Commands
+  dev_deploy:
+    name: dev_deploy
     runs-on: ubuntu-latest
     needs: run_tests
       
     steps:
-      - name: SSH into Server and Execute Commands
+      - name: SSH into Dev Server and Execute Commands
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Add commands to be executed on the server after SSH connection
+            echo "Connected to server"
+            cd /home/ubuntu/cicd-project
+            git pull origin main
+            sudo cp * /var/www/html/
+            echo "website upgradation done"
+
+
+  prod_deploy:
+    name: prod_deploy
+    runs-on: ubuntu-latest
+    needs: run_tests
+    environment:
+      name: production
+    steps:
+      - name: SSH into PROD Server and Execute Commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
